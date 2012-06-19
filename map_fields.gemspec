@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
     "spec/lib/params_parser_spec.rb",
     "spec/spec_helper.rb",
     "spec/test-file.csv",
-    "views/map_fields/_map_fields.erb"
+    "views/map_fields/_map_fields.html.erb"
   ]
   s.homepage = %q{http://github.com/internuity/map-fields}
   s.require_paths = ["lib"]

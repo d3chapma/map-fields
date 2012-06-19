@@ -13,11 +13,11 @@ module MapFields
       :params => []
     }
     options = default_options.merge(
-                self.class.read_inheritable_attribute(:map_fields_options)
+                self.map_fields_options
               )
 
-    RAILS_DEFAULT_LOGGER.debug("session[:map_fields]: #{session[:map_fields]}")
-    RAILS_DEFAULT_LOGGER.debug("params[options[:file_field]]: #{params[options[:file_field]]}")
+    ::Rails.logger.debug("session[:map_fields]: #{session[:map_fields]}")
+    ::Rails.logger.debug("params[options[:file_field]]: #{params[options[:file_field]]}")
     if session[:map_fields].nil? || !params[options[:file_field]].blank?
       session[:map_fields] = {}
       if params[options[:file_field]].blank?
@@ -38,7 +38,7 @@ module MapFields
         session[:map_fields] = nil
         @map_fields_error =  InconsistentStateError
       else
-        expected_fields = self.class.read_inheritable_attribute(:map_fields_fields)
+        expected_fields = self.map_fields_fields
         if expected_fields.respond_to?(:call)
           expected_fields = expected_fields.call(params)
         end
@@ -59,7 +59,7 @@ module MapFields
       rescue CSV::MalformedCSVError => e
         @map_fields_error = e
       end
-      expected_fields = self.class.read_inheritable_attribute(:map_fields_fields)
+      expected_fields = self.map_fields_fields
       if expected_fields.respond_to?(:call)
         expected_fields = expected_fields.call(params)
       end
@@ -97,8 +97,10 @@ module MapFields
 
   module ClassMethods
     def map_fields(actions, fields, options = {})
-      write_inheritable_attribute(:map_fields_fields, fields)
-      write_inheritable_attribute(:map_fields_options, options)
+      class_attribute :map_fields_fields, :instance_writer => false
+      class_attribute :map_fields_options, :instance_writer => false
+      self.map_fields_fields = fields
+      self.map_fields_options = options
       before_filter :map_fields, :only => actions
       after_filter :map_fields_cleanup, :only => actions
     end
